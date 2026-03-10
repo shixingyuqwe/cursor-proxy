@@ -4,6 +4,10 @@
 
 GitHub: https://github.com/shixingyuqwe/cursor-proxy
 
+## 注意事项
+
+> **重要提示：** Cursor 可能会在更新或多次请求失败后自动删除你手动添加的自定义模型。如果发现模型消失，只需重新到 Settings -> Models -> Add Custom Model 添加并开启即可，无需重新配置其他选项。
+
 ## 为什么需要这个？
 
 Cursor Pro 的所有请求都经过 Cursor 云服务器中转。如果你的 API 有 IP 白名单限制，Cursor 的服务器 IP 会被拒绝。本代理解决了这个问题：
