@@ -1,0 +1,6 @@
+{
+  "apiBase": "https://your-api-provider.com",
+  "apiKey": "sk-your-api-key-here",
+  "model": "claude-opus-4-6",
+  "port": 34567
+}

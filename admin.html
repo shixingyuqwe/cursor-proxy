@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cursor Proxy</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
+  .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+  h1 { text-align: center; margin: 20px 0; color: #a78bfa; font-size: 24px; }
+  .status-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0; padding: 12px; background: #16213e; border-radius: 8px; }
+  .status-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .status-dot.running { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+  .status-dot.stopped { background: #f87171; }
+  .card { background: #16213e; border-radius: 10px; padding: 20px; margin: 15px 0; }
+  .card h2 { font-size: 16px; color: #a78bfa; margin-bottom: 15px; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 4px; }
+  .form-group input { width: 100%; padding: 10px 12px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #eee; font-size: 14px; outline: none; }
+  .form-group input:focus { border-color: #a78bfa; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn { padding: 10px 24px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+  .btn-primary { background: #7c3aed; color: white; }
+  .btn-primary:hover { background: #6d28d9; }
+  .btn-sm { padding: 8px 16px; font-size: 13px; }
+  .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+  .log-container { background: #0f172a; border-radius: 8px; padding: 12px; height: 350px; overflow-y: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 12px; line-height: 1.6; }
+  .log-line { white-space: pre-wrap; word-break: break-all; }
+  .log-line.info { color: #94a3b8; }
+  .log-line.success { color: #4ade80; }
+  .log-line.error { color: #f87171; }
+  .log-line.dedup { color: #facc15; }
+  .copy-box { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .copy-box input { flex: 1; }
+  .info-text { font-size: 12px; color: #64748b; margin-top: 6px; line-height: 1.5; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+  .stat { background: #16213e; border-radius: 8px; padding: 12px; text-align: center; }
+  .stat .num { font-size: 24px; font-weight: bold; color: #a78bfa; }
+  .stat .label { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .step { background: #0f172a; border-radius: 6px; padding: 10px 14px; margin: 8px 0; font-size: 13px; color: #cbd5e1; }
+  .step code { background: #1e293b; padding: 2px 6px; border-radius: 3px; color: #a78bfa; }
+  .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .log-header h2 { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Cursor Proxy</h1>
+
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">...</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="statRequests">0</div><div class="label">请求总数</div></div>
+    <div class="stat"><div class="num" id="statDedup">0</div><div class="label">去重节省</div></div>
+    <div class="stat"><div class="num" id="statErrors">0</div><div class="label">错误</div></div>
+  </div>
+
+  <div class="card">
+    <h2>服务配置</h2>
+    <div class="form-group">
+      <label>API 地址</label>
+      <input type="text" id="apiBase" placeholder="https://nagara.top">
+    </div>
+    <div class="form-group">
+      <label>API Key</label>
+      <input type="password" id="apiKey" placeholder="sk-...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>模型名称</label>
+        <input type="text" id="model" placeholder="claude-opus-4-6">
+      </div>
+      <div class="form-group">
+        <label>端口</label>
+        <input type="number" id="port" placeholder="34567">
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Cursor 配置（发给同事）</h2>
+    <div class="form-group">
+      <label>Override OpenAI Base URL（粘贴到 Cursor 设置中）</label>
+      <div class="copy-box">
+        <input type="text" id="cursorUrl" readonly placeholder="启动 ngrok 后填入地址">
+        <button class="btn btn-primary btn-sm" onclick="copyUrl()">复制</button>
+      </div>
+    </div>
+    <div class="info-text">
+      <strong>同事配置步骤：</strong><br>
+      1. Cursor Settings -> Models -> Add Custom Model -> 输入模型名（如 <code>claude-opus-4-6</code>）并开启<br>
+      2. OpenAI API Key -> 开启，填 <code>sk-xxx</code>（随意填写）<br>
+      3. Override OpenAI Base URL -> 开启，粘贴上面的地址<br>
+      4. 聊天窗口底部选择对应模型即可使用
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="log-header">
+      <h2>实时日志</h2>
+      <button class="btn btn-sm btn-primary" onclick="clearLogs()">清空</button>
+    </div>
+    <div class="log-container" id="logContainer"></div>
+  </div>
+</div>
+
+<script>
+  let ws;
+  const logContainer = document.getElementById('logContainer');
+  let stats = { requests: 0, dedup: 0, errors: 0 };
+
+  function connect() {
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${proto}//${location.host}/ws`);
+    ws.onopen = () => {
+      document.getElementById('statusDot').className = 'status-dot running';
+      document.getElementById('statusText').textContent = '代理运行中';
+      addLog('已连接到代理服务', 'success');
+    };
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'log') {
+        let cls = 'info';
+        if (msg.text.includes('Error')) cls = 'error';
+        else if (msg.text.includes('DEDUP')) cls = 'dedup';
+        else if (msg.text.includes('Response: 200') || msg.text.includes('Stream ended')) cls = 'success';
+        addLog(msg.text, cls);
+        if (msg.text.includes('POST /v1/') && !msg.text.includes('DEDUP')) stats.requests++;
+        if (msg.text.includes('DEDUP')) stats.dedup++;
+        if (msg.text.includes('Error') && !msg.text.includes('Stream error')) stats.errors++;
+        updateStats();
+      } else if (msg.type === 'config') {
+        document.getElementById('apiBase').value = msg.config.apiBase || '';
+        document.getElementById('apiKey').value = msg.config.apiKey || '';
+        document.getElementById('model').value = msg.config.model || '';
+        document.getElementById('port').value = msg.config.port || 34567;
+        if (msg.cursorUrl) document.getElementById('cursorUrl').value = msg.cursorUrl;
+      }
+    };
+    ws.onclose = () => {
+      document.getElementById('statusDot').className = 'status-dot stopped';
+      document.getElementById('statusText').textContent = '已断开，正在重连...';
+      setTimeout(connect, 3000);
+    };
+  }
+
+  function addLog(text, cls) {
+    const line = document.createElement('div');
+    line.className = `log-line ${cls}`;
+    line.textContent = text;
+    logContainer.appendChild(line);
+    if (logContainer.children.length > 500) logContainer.removeChild(logContainer.firstChild);
+    logContainer.scrollTop = logContainer.scrollHeight;
+  }
+
+  function clearLogs() { logContainer.innerHTML = ''; stats = { requests: 0, dedup: 0, errors: 0 }; updateStats(); }
+
+  function updateStats() {
+    document.getElementById('statRequests').textContent = stats.requests;
+    document.getElementById('statDedup').textContent = stats.dedup;
+    document.getElementById('statErrors').textContent = stats.errors;
+  }
+
+  function saveConfig() {
+    const cfg = {
+      apiBase: document.getElementById('apiBase').value,
+      apiKey: document.getElementById('apiKey').value,
+      model: document.getElementById('model').value,
+      port: parseInt(document.getElementById('port').value) || 34567
+    };
+    fetch('/admin/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg) })
+      .then(r => r.json()).then(data => {
+        if (data.ok) addLog('配置已保存，重启服务后生效。', 'success');
+        else addLog('保存失败: ' + data.error, 'error');
+      });
+  }
+
+  function copyUrl() {
+    const input = document.getElementById('cursorUrl');
+    navigator.clipboard.writeText(input.value).then(() => {
+      const btn = input.nextElementSibling;
+      btn.textContent = '已复制';
+      setTimeout(() => btn.textContent = '复制', 2000);
+    });
+  }
+
+  connect();
+</script>
+</body>
+</html>
