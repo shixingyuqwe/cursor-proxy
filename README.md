@@ -1,6 +1,6 @@
 # Cursor Proxy
 
-让 Cursor 编辑器通过第三方 API（如 nagara.top）使用 Claude 模型。
+让 Cursor 编辑器通过第三方 API（如 your-api-provider.com）使用 Claude 模型。
 
 GitHub: https://github.com/shixingyuqwe/cursor-proxy
 
