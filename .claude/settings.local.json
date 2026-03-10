@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where ngrok)",
+      "Bash(npx -y localtunnel --port 34567)",
+      "Bash(choco install ngrok -y)",
+      "Bash(winget install ngrok.ngrok)",
+      "Bash(ssh -R 80:localhost:34567 serveo.net)",
+      "Bash(ssh -o StrictHostKeyChecking=no -tt -R 80:localhost:34567 serveo.net)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -tt -R 80:localhost:34567 serveo.net)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://3b47fe2c84c72e8b-43-153-63-123.serveousercontent.com/v1/chat/completions)",
+      "Bash(curl -s -X POST https://3b47fe2c84c72e8b-43-153-63-123.serveousercontent.com/v1/chat/completions -H \"Content-Type: application/json\" -d '{\"\"model\"\":\"\"test\"\",\"\"messages\"\":[{\"\"role\"\":\"\"user\"\",\"\"content\"\":\"\"hi\"\"}],\"\"stream\"\":false}')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST https://3b47fe2c84c72e8b-43-153-63-123.serveousercontent.com/v1/chat/completions -H \"Content-Type: application/json\" -d '{}')"
+    ]
+  }
+}
