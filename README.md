@@ -4,9 +4,11 @@
 
 GitHub: https://github.com/shixingyuqwe/cursor-proxy
 
-## 注意事项
+## 前提条件
 
-> **重要提示：** Cursor 可能会在更新或多次请求失败后自动删除你手动添加的自定义模型。如果发现模型消失，只需重新到 Settings -> Models -> Add Custom Model 添加并开启即可，无需重新配置其他选项。
+> **Cursor Pro 用户专属：** 自定义模型接入需要 Cursor Pro 订阅。免费版用户无法添加自定义模型。如果你不使用 Cursor，也可以选择 VS Code + [Continue](https://continue.dev) 或 [Cline](https://github.com/cline/cline) 插件，同样支持自定义 API 接入，且免费。
+
+> **模型可能被自动删除：** Cursor 可能会在更新或多次请求失败后自动移除你手动添加的自定义模型。如果发现模型消失，只需重新到 Settings -> Models -> Add Custom Model 添加并开启即可，无需重新配置其他选项。
 
 ## 为什么需要这个？
 
