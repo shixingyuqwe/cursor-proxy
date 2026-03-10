@@ -6,7 +6,7 @@ GitHub: https://github.com/shixingyuqwe/cursor-proxy
 
 ## 前提条件
 
-> **Cursor Pro 用户专属：** 自定义模型接入需要 Cursor Pro 订阅。免费版用户无法添加自定义模型。如果你不使用 Cursor，也可以选择 VS Code + [Continue](https://continue.dev) 或 [Cline](https://github.com/cline/cline) 插件，同样支持自定义 API 接入，且免费。
+> **Cursor Pro 用户专属：** 自定义模型接入需要 Cursor Pro 订阅。免费版用户无法添加自定义模型。
 
 > **模型可能被自动删除：** Cursor 可能会在更新或多次请求失败后自动移除你手动添加的自定义模型。如果发现模型消失，只需重新到 Settings -> Models -> Add Custom Model 添加并开启即可，无需重新配置其他选项。
 
@@ -72,6 +72,8 @@ node server.js
 
 Cursor 的请求经过其云服务器，无法直接访问你的 localhost，所以需要 ngrok 把本地服务暴露到公网。
 
+**安装 ngrok：** 从 https://ngrok.com/download 下载，或参考官方文档安装。
+
 ```bash
 # 首次使用：注册 https://ngrok.com 获取 authtoken
 ngrok authtoken 你的token
@@ -81,6 +83,17 @@ ngrok http 34567
 ```
 
 启动后会得到一个公网地址，如 `https://xxx.ngrok-free.app`。
+
+**ngrok 常用操作：**
+
+| 操作 | 方法 |
+|------|------|
+| 查看隧道状态 | 浏览器打开 http://127.0.0.1:4040 |
+| 查看公网地址 | 启动后终端会显示，或访问上面的状态页 |
+| 关闭隧道 | 在 ngrok 终端按 `Ctrl+C` |
+| 重启隧道 | 关闭后重新运行 `ngrok http 34567` |
+
+> **提示：** ngrok 免费版每次重启地址可能会变，需要同步更新 Cursor 中的 Base URL。ngrok 状态面板 http://127.0.0.1:4040 还可以查看所有经过隧道的请求详情，方便调试。
 
 ### 5. 配置 Cursor
 
