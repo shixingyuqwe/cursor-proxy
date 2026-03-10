@@ -6,7 +6,7 @@ GitHub: https://github.com/shixingyuqwe/cursor-proxy
 
 ## 前提条件
 
-> **Cursor Pro 用户专属：** 自定义模型接入需要 Cursor Pro 订阅。免费版用户无法添加自定义模型。
+> **Cursor Pro 用户专属：** 自定义模型接入需要 Cursor Pro 订阅（Pro Trial 试用版也可以）。免费版用户无法添加自定义模型。请确保使用 **Cursor 最新版本**（当前验证版本：2.6.14），旧版本可能不支持部分功能。
 
 > **模型可能被自动删除：** Cursor 可能会在更新或多次请求失败后自动移除你手动添加的自定义模型。如果发现模型消失，只需重新到 Settings -> Models -> Add Custom Model 添加并开启即可，无需重新配置其他选项。
 
